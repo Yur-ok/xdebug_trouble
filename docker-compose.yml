@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: ./docker/app/Dockerfile
+            target: dev
+        container_name: local-app
+        env_file:
+            - app/.env
+            - app/.env.local
+        environment:
+            XDEBUG_MODE: "${XDEBUG_MODE:-debug}"
+            PHP_IDE_CONFIG: "${PHP_IDE_CONFIG:-\"serverName: swoole\"}"
+            AUTORELOAD_ANY_FILES: "${AUTORELOAD_ANY_FILES:-1}"
+            AUTORELOAD_PROGRAMS: "${AUTORELOAD_PROGRAMS:-swoole}"
+            SSH_PRIVATE_KEY_PATH: "${SSH_PRIVATE_KEY_PATH:-~/.ssh}"
+        working_dir: /var/www/app
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '${APP_PORT:-80}:${SWOOLE_PORT:-9501}'
+        volumes:
+            - ./app:/var/www/app
+            - ${SSH_PRIVATE_KEY_PATH:-~/.ssh}:/home/developer/.ssh
